@@ -1,0 +1,115 @@
+#include <iostream>
+#include <vector>
+#include <random>
+#include <algorithm>
+#include <memory>
+
+struct Color {
+
+float red;
+
+float green;
+
+float blue;
+
+static Color random() {
+
+static std::mt19937 engine{ std::random_device{}() };
+
+static std::uniform_real_distribution<float> dist{ 0, 1 };
+
+return Color{ dist(engine), dist(engine), dist(engine) };
+
+}
+
+};
+
+void colorSink(std::unique_ptr<Color> color) {
+
+// ... do nothing ... do not change the signature or implementation of this function
+std::cout << "Success!\n";
+
+}
+
+// overloaded the output stream operator so that you can print this color directly to the output stream
+std::ostream& operator<<(std::ostream &out, const Color &c)
+{
+out<<"COLOR("<<c.red<<", "<<c.green<<", "<<c.blue<<")";
+return out;
+}
+
+int main()
+{
+std::cout << "Hello, World\n";
+
+auto c = Color::random();
+
+// TODO: uncomment the line below, the color should be printed
+
+std::cout << "First color is: " << c << "\n";
+
+// 2. here is a list of ten colors, print them out in order, and then in reverse order
+std::vector<Color> colors;
+
+for (int i = 0; i < 10; i++) {
+
+colors.push_back(Color::random());
+}
+
+// print the colors in initial order
+std::cout<<"colors initial order: [\n";
+// loop over the vector, displaying the colors
+for(int i=0;i<colors.size();i++)
+{
+std::cout<<"\t"<<colors[i]<<",\n";
+}
+
+// print the colors in reversed order
+std::cout<<"]\ncolors reversed: [\n";
+// loop over the vector, displaying the colors
+for(int i = colors.size()-1; i>=0;i--)
+{
+std::cout<<"\t"<<colors[i]<<",\n";
+}
+
+std::cout<<"]\n";
+
+
+// 3. find the color in the list that is darkest and print it out
+// the darkest color is defined as the color where the sum of the red, green, and blue components is the smallest
+int maxIdx = 0; // set the index of first color as the darkest
+// loop to find the darkest color in the vector
+for(int i=1;i<colors.size();i++)
+{
+// if sum of ith color is < color of maxIdx color, update maxIdx
+if((colors[i].red + colors[i].blue + colors[i].green) < (colors[maxIdx].red + colors[maxIdx].blue + colors[maxIdx].green))
+maxIdx = i;
+}
+
+// display the darkest color
+std::cout<<"the darkest color is:"<<colors[maxIdx]<<"\n";
+
+// 4. order the colors from smallest 'blue' value to largest 'blue' value and print them out
+sort(colors.begin(), colors.end(), [](const Color &lhs, const Color &rhs){
+return(lhs.blue < rhs.blue); // comparator for comparing the colors using their blue component
+});
+
+// display the colors in sorted order
+std::cout<<"colors sorted by 'blue' value: [\n";
+for(int i=0;i<colors.size();i++)
+{
+std::cout<<"\t"<<colors[i]<<",\n";
+}
+
+std::cout<<"]\n";
+// 5. create a std::unique_ptr to a color on the free-store and call it 'colorPtr', pass this color to the
+// 'colorSink' function.
+// i.e. auto colorPtr = ...
+std::unique_ptr<Color> colorPtr(new Color); // create a unique_ptr in free-store
+// since copy of unique_ptr cannot be made, transfer the ownership of the pointer to the ptr within the function call
+// using move function
+colorSink(move(colorPtr));
+return 0;
+}
+
+//end of program
